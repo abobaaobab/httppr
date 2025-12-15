@@ -85,6 +85,12 @@ public slots:
     void handleShowProfile();
 
     /**
+     * @brief Обработчик запроса обновления прогресса пользователя.
+     * @param topicIndex Индекс изученной темы.
+     */
+    void handleProgressUpdate(int topicIndex);
+
+    /**
      * @brief Обработчик возврата из панели администратора.
      */
     void handleAdminBack();
@@ -94,11 +100,7 @@ public slots:
      */
     void handleTestTimeout();
 
-    /**
-     * @brief Обработчик сохранения прогресса студента.
-     * @param topicIndex Индекс последней изученной темы.
-     */
-    void handleProgressUpdate(int topicIndex);
+
 
 signals:
     /**

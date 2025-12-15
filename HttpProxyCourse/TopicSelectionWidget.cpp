@@ -37,6 +37,14 @@ void TopicSelectionWidget::setTopics(const QList<Topic>& topics) {
     }
 }
 
+void TopicSelectionWidget::setLastStudiedTopic(int topicId) {
+    // Выделяем последнюю изученную тему в списке
+    if (topicId >= 0 && topicId < m_topicsList->count()) {
+        m_topicsList->setCurrentRow(topicId);
+        m_topicsList->scrollToItem(m_topicsList->item(topicId));
+    }
+}
+
 void TopicSelectionWidget::onSelectClicked() {
     int currentRow = m_topicsList->currentRow();
     if (currentRow >= 0) {

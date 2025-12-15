@@ -43,19 +43,6 @@ void TopicViewWidget::updateUserProgress() {
         return; // Нет активной темы
     }
     
-    // Получаем текущего пользователя из сессии
-    SessionManager& sessionManager = SessionManager::instance();
-    User currentUser = sessionManager.getCurrentUser();
-    
-    if (!currentUser.isValid()) {
-        qWarning() << "No valid user in session, cannot update progress";
-        return;
-    }
-    
-    // Обновляем прогресс пользователя
-    if (ProgressDao::updateProgress(currentUser.id, currentTopicIndex)) {
-        qDebug() << "Progress updated for user" << currentUser.id << "to topic" << currentTopicIndex;
-    } else {
-        qWarning() << "Failed to update progress for user" << currentUser.id;
-    }
+    // Отправляем сигнал для обновления прогресса
+    emit progressUpdateRequested(currentTopicIndex);
 }

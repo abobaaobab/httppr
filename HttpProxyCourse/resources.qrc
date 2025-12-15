@@ -1,5 +1,4 @@
 <RCC>
     <qresource prefix="/">
-        <file>source.json</file>
     </qresource>
 </RCC>

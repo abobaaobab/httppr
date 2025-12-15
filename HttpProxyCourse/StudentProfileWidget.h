@@ -36,9 +36,21 @@ public:
     void setCurrentUser(const User& user);
 
     /**
+     * @brief Устанавливает пользователя для отображения профиля.
+     * @param user Пользователь для отображения.
+     */
+    void setUser(const User& user);
+
+    /**
      * @brief Обновляет данные профиля и историю тестов.
      */
     void refreshData();
+
+    /**
+     * @brief Устанавливает модель результатов тестов.
+     * @param model Модель результатов для отображения.
+     */
+    void setResultsModel(QAbstractItemModel* model);
 
 signals:
     /**

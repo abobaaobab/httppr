@@ -128,6 +128,13 @@ bool SessionManager::hasUser() const {
     return m_currentUser.isValid();
 }
 
+void SessionManager::clearSession() {
+    m_currentUser = User(); // Сброс пользователя
+    currentTopicIndex = -1;
+    currentQuestionIndex = -1;
+    errorsInTopic = 0;
+}
+
 bool SessionManager::saveProgress() {
     if (!hasUser() || !DatabaseManager::instance().isConnected()) {
         return false;
