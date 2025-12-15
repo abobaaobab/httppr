@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QProgressBar>
 #include <QDateTime>
+#include <QLCDNumber>
 
 /**
  * @brief Виджет тестирования знаний.
@@ -121,7 +122,7 @@ private:
     // Таймер и прогресс
     QTimer* m_timer;
     QTimer* m_updateTimer;
-    QLabel* m_timeLabel;
+    QLCDNumber* m_timeLabel;
     QProgressBar* m_progressBar;
     QLabel* m_progressLabel;
 

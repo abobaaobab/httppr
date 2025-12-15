@@ -19,8 +19,9 @@ TestWidget::TestWidget(QWidget *parent)
     // Создание панели статуса
     auto statusLayout = new QHBoxLayout();
     
-    m_timeLabel = new QLabel("Время: --:--", this);
-    m_timeLabel->setStyleSheet("QLabel { color: red; font-weight: bold; }");
+    m_timeLabel = new QLCDNumber(5, this);
+    m_timeLabel->setSegmentStyle(QLCDNumber::Flat);
+    m_timeLabel->display("--:--");
     
     m_progressLabel = new QLabel("Вопрос: 0/0", this);
     
@@ -164,17 +165,18 @@ void TestWidget::updateTimer() {
     int minutes = remainingSeconds / 60;
     int seconds = remainingSeconds % 60;
 
-    m_timeLabel->setText(QString("Время: %1:%2")
+    QString timeString = QString("%1:%2")
                         .arg(minutes, 2, 10, QChar('0'))
-                        .arg(seconds, 2, 10, QChar('0')));
+                        .arg(seconds, 2, 10, QChar('0'));
+    m_timeLabel->display(timeString);
 
     // Изменение цвета при малом времени
     if (remainingSeconds < 300) { // Менее 5 минут
-        m_timeLabel->setStyleSheet("QLabel { color: red; font-weight: bold; }");
+        m_timeLabel->setStyleSheet("QLCDNumber { color: red; }");
     } else if (remainingSeconds < 600) { // Менее 10 минут
-        m_timeLabel->setStyleSheet("QLabel { color: orange; font-weight: bold; }");
+        m_timeLabel->setStyleSheet("QLCDNumber { color: orange; }");
     } else {
-        m_timeLabel->setStyleSheet("QLabel { color: green; font-weight: bold; }");
+        m_timeLabel->setStyleSheet("QLCDNumber { color: green; }");
     }
 }
 
