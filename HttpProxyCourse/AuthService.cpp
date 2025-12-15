@@ -1,4 +1,5 @@
 #include "AuthService.h"
+#include "UserDao.h"
 #include "DatabaseManager.h"
 #include "Logger.h"
 #include <QCryptographicHash>
@@ -21,27 +22,28 @@ AuthService::AuthResult AuthService::login(const QString& login, const QString& 
         return AuthResult::DatabaseError;
     }
 
-    // Подготовка запроса для поиска пользователя
-    QSqlQuery query(dbManager.database());
-    query.prepare("SELECT id, login, pass_hash, full_name, role FROM users WHERE login = ?");
-    query.addBindValue(login.trimmed());
-
-    if (!query.exec()) {
-        qCritical() << "Failed to execute login query:" << query.lastError().text();
-        return AuthResult::DatabaseError;
-    }
-
-    if (!query.next()) {
+    // Поиск пользователя через DAO
+    User foundUser = UserDao::findByLogin(login);
+    if (!foundUser.isValid()) {
         qDebug() << "User not found:" << login;
         return AuthResult::UserNotFound;
     }
 
-    // Получение данных пользователя
-    int userId = query.value("id").toInt();
-    QString storedLogin = query.value("login").toString();
-    QString storedHash = query.value("pass_hash").toString();
-    QString fullName = query.value("full_name").toString();
-    QString role = query.value("role").toString();
+    // Получение хэша пароля из БД для проверки
+    QSqlQuery query(dbManager.database());
+    query.prepare("SELECT password_hash FROM users WHERE login = ?");
+    query.addBindValue(login.trimmed());
+
+    if (!query.exec()) {
+        qCritical() << "Failed to execute password query:" << query.lastError().text();
+        return AuthResult::DatabaseError;
+    }
+
+    if (!query.next()) {
+        return AuthResult::UserNotFound;
+    }
+
+    QString storedHash = query.value("password_hash").toString();
 
     // Проверка пароля
     QString inputHash = calculateSha256(password);
@@ -50,9 +52,9 @@ AuthService::AuthResult AuthService::login(const QString& login, const QString& 
         return AuthResult::InvalidCredentials;
     }
 
-    // Заполнение объекта пользователя
-    user = User(userId, storedLogin, fullName, role);
-    qDebug() << "User authenticated successfully:" << login << "(" << role << ")";
+    // Возвращаем найденного пользователя
+    user = foundUser;
+    qDebug() << "User authenticated successfully:" << login << "(" << foundUser.role << ")";
     
     return AuthResult::Success;
 }
@@ -84,33 +86,18 @@ AuthService::RegisterResult AuthService::registerUser(const QString& login, cons
         return RegisterResult::DatabaseError;
     }
 
-    // Проверка существования пользователя
-    QSqlQuery checkQuery(dbManager.database());
-    checkQuery.prepare("SELECT COUNT(*) FROM users WHERE login = ?");
-    checkQuery.addBindValue(login.trimmed());
-
-    if (!checkQuery.exec()) {
-        qCritical() << "Failed to check user existence:" << checkQuery.lastError().text();
-        return RegisterResult::DatabaseError;
-    }
-
-    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+    // Проверка существования пользователя через DAO
+    if (UserDao::existsByLogin(login)) {
         qDebug() << "User already exists:" << login;
         return RegisterResult::UserExists;
     }
 
-    // Создание нового пользователя
+    // Создание нового пользователя через DAO
+    User newUser(-1, login.trimmed(), fullName.trimmed(), role);
     QString passwordHash = calculateSha256(password);
     
-    QSqlQuery insertQuery(dbManager.database());
-    insertQuery.prepare("INSERT INTO users (login, pass_hash, full_name, role) VALUES (?, ?, ?, ?)");
-    insertQuery.addBindValue(login.trimmed());
-    insertQuery.addBindValue(passwordHash);
-    insertQuery.addBindValue(fullName.trimmed());
-    insertQuery.addBindValue(role);
-
-    if (!insertQuery.exec()) {
-        qCritical() << "Failed to register user:" << insertQuery.lastError().text();
+    if (!UserDao::create(newUser, passwordHash)) {
+        qCritical() << "Failed to register user through DAO";
         return RegisterResult::DatabaseError;
     }
 

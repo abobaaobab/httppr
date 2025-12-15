@@ -1,4 +1,5 @@
 #include "StudentProfileWidget.h"
+#include "TestResultDao.h"
 #include "DatabaseManager.h"
 #include <QSqlQuery>
 #include <QSqlError>
@@ -164,7 +165,7 @@ void StudentProfileWidget::updateUserInfo() {
 }
 
 void StudentProfileWidget::updateStatistics() {
-    if (!m_currentUser.isValid() || !DatabaseManager::instance().isConnected()) {
+    if (!m_currentUser.isValid()) {
         m_totalTestsLabel->setText("—");
         m_averageScoreLabel->setText("—");
         m_bestScoreLabel->setText("—");
@@ -172,42 +173,30 @@ void StudentProfileWidget::updateStatistics() {
         return;
     }
     
-    QSqlQuery query(DatabaseManager::instance().database());
+    // Получение статистики через DAO
+    QList<TestResult> results = TestResultDao::findByUserId(m_currentUser.id);
+    int totalTests = results.size();
     
-    // Запрос статистики
-    query.prepare(
-        "SELECT "
-            "COUNT(*) as total_tests, "
-            "ROUND(AVG(CAST(score AS FLOAT) / CAST(max_score AS FLOAT) * 100), 1) as avg_percentage, "
-            "MAX(CAST(score AS FLOAT) / CAST(max_score AS FLOAT) * 100) as best_percentage, "
-            "MAX(test_date) as last_test_date "
-        "FROM test_results "
-        "WHERE user_id = ?");
+    m_totalTestsLabel->setText(QString::number(totalTests));
     
-    query.addBindValue(m_currentUser.id);
-    
-    if (!query.exec()) {
-        qCritical() << "Failed to fetch user statistics:" << query.lastError().text();
-        return;
-    }
-    
-    if (query.next()) {
-        int totalTests = query.value("total_tests").toInt();
-        double avgPercentage = query.value("avg_percentage").toDouble();
-        double bestPercentage = query.value("best_percentage").toDouble();
-        QDateTime lastTestDate = query.value("last_test_date").toDateTime();
+    if (totalTests > 0) {
+        // Вычисление средней оценки
+        double avgPercentage = TestResultDao::getAverageScore(m_currentUser.id);
         
-        m_totalTestsLabel->setText(QString::number(totalTests));
+        // Поиск лучшего результата
+        TestResult bestResult = TestResultDao::getBestResult(m_currentUser.id);
+        double bestPercentage = bestResult.getPercentage();
         
-        if (totalTests > 0) {
-            m_averageScoreLabel->setText(QString("%1%").arg(avgPercentage, 0, 'f', 1));
-            m_bestScoreLabel->setText(QString("%1%").arg(bestPercentage, 0, 'f', 1));
-            m_lastTestLabel->setText(lastTestDate.toString("dd.MM.yyyy hh:mm"));
-        } else {
-            m_averageScoreLabel->setText("—");
-            m_bestScoreLabel->setText("—");
-            m_lastTestLabel->setText("—");
-        }
+        // Последний тест (первый в списке, так как отсортирован по дате DESC)
+        QDateTime lastTestDate = results.first().testDate;
+        
+        m_averageScoreLabel->setText(QString("%1%").arg(avgPercentage, 0, 'f', 1));
+        m_bestScoreLabel->setText(QString("%1%").arg(bestPercentage, 0, 'f', 1));
+        m_lastTestLabel->setText(lastTestDate.toString("dd.MM.yyyy hh:mm"));
+    } else {
+        m_averageScoreLabel->setText("—");
+        m_bestScoreLabel->setText("—");
+        m_lastTestLabel->setText("—");
     }
 }
 

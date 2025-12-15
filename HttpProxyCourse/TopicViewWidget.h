@@ -25,8 +25,9 @@ public:
     /**
      * @brief Отображает содержимое указанной темы.
      * @param topic Тема для отображения.
+     * @param topicIndex Индекс темы для обновления прогресса.
      */
-    void showTopic(const Topic& topic);
+    void showTopic(const Topic& topic, int topicIndex);
 
 signals:
     /**
@@ -39,8 +40,28 @@ signals:
      */
     void backRequested();
 
+protected:
+    /**
+     * @brief Обработчик события закрытия виджета.
+     * Обновляет прогресс пользователя при закрытии теории.
+     */
+    void closeEvent(QCloseEvent* event) override;
+
+private slots:
+    /**
+     * @brief Обработчик нажатия кнопки "Назад".
+     * Обновляет прогресс перед возвратом.
+     */
+    void onBackClicked();
+
 private:
+    /**
+     * @brief Обновляет прогресс пользователя.
+     */
+    void updateUserProgress();
+
     QTextBrowser* textBrowser;
     QPushButton* btnStartTest;
     QPushButton* btnBack;
+    int currentTopicIndex;  ///< Индекс текущей темы
 };
