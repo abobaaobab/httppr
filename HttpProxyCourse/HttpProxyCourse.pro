@@ -10,8 +10,10 @@ CONFIG += c++17
 
 SOURCES += \
     AdminWidget.cpp \
+    AppController.cpp \
     AuthService.cpp \
     CourseDataConverter.cpp \
+    CourseModel.cpp \
     DatabaseConfig.cpp \
     DatabaseManager.cpp \
     Logger.cpp \
@@ -30,8 +32,10 @@ SOURCES += \
 
 HEADERS += \
     AdminWidget.h \
+    AppController.h \
     AuthService.h \
     CourseDataConverter.h \
+    CourseModel.h \
     DatabaseConfig.h \
     DatabaseManager.h \
     DomainTypes.h \
@@ -56,8 +60,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    source.json
+
 
 RESOURCES += \
     resources.qrc

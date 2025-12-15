@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "Serializer.h"
 #include "CourseDataConverter.h"
 #include "DatabaseManager.h"
 #include "Logger.h"
@@ -16,20 +17,15 @@ int main(int argc, char *argv[])
     
     // Проверяем наличие бинарного файла данных курса и создаем его при необходимости
     const QString courseDataFile = "course.dat";
-    const QString sourceJsonFile = "source.json";
     
     if (!QFile::exists(courseDataFile)) {
-        qDebug() << "Binary course data file not found. Converting from" << sourceJsonFile;
-        if (QFile::exists(sourceJsonFile)) {
-            if (CourseDataConverter::convertJsonToBinary(sourceJsonFile, courseDataFile)) {
-                qDebug() << "Course data converted to binary format successfully!";
-            } else {
-                qCritical() << "Failed to convert course data to binary format.";
-                qCritical() << "Application may not work properly without course data.";
-            }
-        } else {
-            qCritical() << "Source JSON file not found:" << sourceJsonFile;
-            qCritical() << "Cannot create course data file.";
+        qDebug() << "Course data file not found. Generating binary course data...";
+        try {
+            Serializer::generateCourseData(courseDataFile);
+            qDebug() << "Course data file created successfully!";
+        } catch (const std::exception& e) {
+            qCritical() << "Failed to generate course data:" << e.what();
+            qCritical() << "Application may not work properly without course data.";
         }
     } else {
         qDebug() << "Binary course data file found:" << courseDataFile;
