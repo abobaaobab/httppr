@@ -1,0 +1,29 @@
+# Пример файла конфигурации для HTTP Proxy Course
+# Скопируйте этот файл в config.ini и измените параметры под вашу среду
+
+[Database]
+# Хост базы данных PostgreSQL
+hostname=localhost
+
+# Имя базы данных
+database=proxy_course
+
+# Имя пользователя БД
+username=postgres
+
+# Пароль пользователя БД (ВНИМАНИЕ: не добавляйте config.ini в git!)
+password=postgres
+
+# Порт PostgreSQL (по умолчанию 5432)
+port=5432
+
+[Application]
+# Включить логирование в файл (true/false)
+file_logging=true
+
+# Путь к файлу лога
+log_file=application.log
+
+[Security]
+# Ключ шифрования для бинарных файлов (hex значение)
+encryption_key=5A
