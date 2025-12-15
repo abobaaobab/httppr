@@ -1,4 +1,6 @@
 #include "AdminWidget.h"
+#include "UserDao.h"
+#include "TestResultDao.h"
 #include "DatabaseManager.h"
 #include <QSqlQuery>
 #include <QSqlError>
@@ -223,7 +225,7 @@ void AdminWidget::updateStudentStatistics() {
         return;
     }
 
-    // SQL запрос для получения статистики всех студентов
+    // SQL запрос для получения статистики всех студентов с фильтрацией по фамилии
     QString queryString = 
         "SELECT "
             "u.id as \"ID\", "
@@ -255,6 +257,12 @@ void AdminWidget::updateStudentStatistics() {
         qCritical() << "Model error:" << m_statisticsModel->lastError().text();
         QMessageBox::warning(this, "Ошибка", "Ошибка при отображении статистики.");
         return;
+    }
+
+    // Настройка фильтра по фамилии (QSortFilterProxyModel)
+    if (m_proxyModel) {
+        m_proxyModel->setFilterKeyColumn(1); // Колонка "Полное имя"
+        m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     }
 
     // Настройка размеров колонок

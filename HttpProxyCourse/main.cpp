@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "Serializer.h"
+#include "CourseDataConverter.h"
 #include "DatabaseManager.h"
 #include "Logger.h"
 #include <QApplication>
@@ -14,7 +15,7 @@ int main(int argc, char *argv[])
     Logger::setFileLogging(true, "application.log");
     Logger::info("Запуск приложения HTTP Proxy Course", "Main");
     
-    // Проверяем наличие файла данных курса и создаем его при необходимости
+    // Проверяем наличие бинарного файла данных курса и создаем его при необходимости
     const QString courseDataFile = "course.dat";
     
     if (!QFile::exists(courseDataFile)) {
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
             qCritical() << "Application may not work properly without course data.";
         }
     } else {
-        qDebug() << "Course data file found:" << courseDataFile;
+        qDebug() << "Binary course data file found:" << courseDataFile;
     }
     
     // Инициализация базы данных

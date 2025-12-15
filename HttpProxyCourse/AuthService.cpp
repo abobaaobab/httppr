@@ -50,7 +50,7 @@ AuthService::AuthResult AuthService::login(const QString& login, const QString& 
         return AuthResult::InvalidCredentials;
     }
 
-    // Заполнение объекта пользователя
+    // Создаем объект пользователя
     user = User(userId, storedLogin, fullName, role);
     qDebug() << "User authenticated successfully:" << login << "(" << role << ")";
     
@@ -88,12 +88,12 @@ AuthService::RegisterResult AuthService::registerUser(const QString& login, cons
     QSqlQuery checkQuery(dbManager.database());
     checkQuery.prepare("SELECT COUNT(*) FROM users WHERE login = ?");
     checkQuery.addBindValue(login.trimmed());
-
+    
     if (!checkQuery.exec()) {
         qCritical() << "Failed to check user existence:" << checkQuery.lastError().text();
         return RegisterResult::DatabaseError;
     }
-
+    
     if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
         qDebug() << "User already exists:" << login;
         return RegisterResult::UserExists;
