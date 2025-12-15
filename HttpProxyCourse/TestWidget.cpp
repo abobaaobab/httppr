@@ -1,4 +1,5 @@
 #include "TestWidget.h"
+#include "TestResultDao.h"
 #include "DatabaseManager.h"
 #include <QMessageBox>
 #include <QHBoxLayout>
@@ -208,23 +209,17 @@ void TestWidget::onAnswerSubmitted() {
 }
 
 bool TestWidget::saveTestResult() {
-    if (!m_currentUser.isValid() || !DatabaseManager::instance().isConnected()) {
-        qWarning() << "Cannot save test result: invalid user or no database connection";
+    if (!m_currentUser.isValid()) {
+        qWarning() << "Cannot save test result: invalid user";
         return false;
     }
 
-    QSqlQuery query(DatabaseManager::instance().database());
-    query.prepare(R"(
-        INSERT INTO test_results (user_id, test_date, score, max_score) 
-        VALUES (?, CURRENT_TIMESTAMP, ?, ?)
-    )");
+    // Создание объекта результата теста
+    TestResult result(m_currentUser.id, m_correctAnswers, m_questions.size());
     
-    query.addBindValue(m_currentUser.id);
-    query.addBindValue(m_correctAnswers);
-    query.addBindValue(m_questions.size());
-
-    if (!query.exec()) {
-        qCritical() << "Failed to save test result:" << query.lastError().text();
+    // Сохранение через DAO
+    if (!TestResultDao::save(result)) {
+        qCritical() << "Failed to save test result through DAO";
         return false;
     }
 

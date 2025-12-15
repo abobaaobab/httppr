@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_testWidget, &TestWidget::answerSubmitted,
             this, &MainWindow::onAnswerSubmitted);
+    connect(m_testWidget, &TestWidget::testFinished,
+            this, &MainWindow::onTestFinished);
 
     loadCourseData();
 }
@@ -162,7 +164,7 @@ void MainWindow::onTopicSelected(int index) {
 
         Topic* topic = m_sessionManager.getCurrentTopic();
         if (topic) {
-            m_topicViewWidget->showTopic(*topic);
+            m_topicViewWidget->showTopic(*topic, index);
             m_stackedWidget->setCurrentWidget(m_topicViewWidget);
         }
     } catch (const std::exception& e) {
@@ -172,13 +174,22 @@ void MainWindow::onTopicSelected(int index) {
 
 void MainWindow::onStartTestRequested() {
     try {
-        Question* q = m_sessionManager.getCurrentQuestion();
-        if (q) {
-            m_testWidget->showQuestion(*q);
-            m_stackedWidget->setCurrentWidget(m_testWidget);
-        } else {
+        Topic* currentTopic = m_sessionManager.getCurrentTopic();
+        if (!currentTopic || currentTopic->questions.isEmpty()) {
             QMessageBox::warning(this, "Внимание", "В данной теме отсутствуют вопросы для тестирования.");
+            return;
         }
+        
+        User currentUser = m_sessionManager.getCurrentUser();
+        if (!currentUser.isValid()) {
+            QMessageBox::critical(this, "Ошибка", "Пользователь не авторизован.");
+            return;
+        }
+        
+        // Запуск теста с вопросами текущей темы
+        m_testWidget->startTest(currentTopic->questions, currentUser);
+        m_stackedWidget->setCurrentWidget(m_testWidget);
+        
     } catch (const std::exception& e) {
         QMessageBox::critical(this, "Ошибка теста", e.what());
     }
@@ -228,6 +239,40 @@ void MainWindow::onAnswerSubmitted(int answerIndex) {
         QMessageBox::critical(this, "Системная ошибка", e.what());
         m_stackedWidget->setCurrentWidget(m_topicWidget);
     }
+}
+
+void MainWindow::onTestFinished(int score, int maxScore, bool timeExpired) {
+    QString message;
+    double percentage = maxScore > 0 ? (static_cast<double>(score) / maxScore) * 100.0 : 0.0;
+    
+    if (timeExpired) {
+        message = QString("Время тестирования истекло!\n\n"
+                         "Результат: %1 из %2 (%3%)")
+                         .arg(score).arg(maxScore).arg(percentage, 0, 'f', 1);
+    } else {
+        message = QString("Тест завершен!\n\n"
+                         "Результат: %1 из %2 (%3%)")
+                         .arg(score).arg(maxScore).arg(percentage, 0, 'f', 1);
+    }
+    
+    // Определение оценки
+    QString grade;
+    if (percentage >= 90) {
+        grade = "Отлично";
+    } else if (percentage >= 75) {
+        grade = "Хорошо";
+    } else if (percentage >= 60) {
+        grade = "Удовлетворительно";
+    } else {
+        grade = "Неудовлетворительно";
+    }
+    
+    message += QString("\nОценка: %1").arg(grade);
+    
+    QMessageBox::information(this, "Результат тестирования", message);
+    
+    // Возврат к выбору тем
+    m_stackedWidget->setCurrentWidget(m_topicWidget);
 }
 
 void MainWindow::onShowProfileRequested() {

@@ -1,6 +1,10 @@
 #include "TopicViewWidget.h"
+#include "ProgressDao.h"
+#include "SessionManager.h"
+#include <QCloseEvent>
+#include <QDebug>
 
-TopicViewWidget::TopicViewWidget(QWidget *parent) : QWidget(parent) {
+TopicViewWidget::TopicViewWidget(QWidget *parent) : QWidget(parent), currentTopicIndex(-1) {
     auto layout = new QVBoxLayout(this);
 
     textBrowser = new QTextBrowser(this);
@@ -15,9 +19,43 @@ TopicViewWidget::TopicViewWidget(QWidget *parent) : QWidget(parent) {
     layout->addWidget(btnBack);
 
     connect(btnStartTest, &QPushButton::clicked, this, &TopicViewWidget::startTestRequested);
-    connect(btnBack, &QPushButton::clicked, this, &TopicViewWidget::backRequested);
+    connect(btnBack, &QPushButton::clicked, this, &TopicViewWidget::onBackClicked);
 }
 
-void TopicViewWidget::showTopic(const Topic& topic) {
+void TopicViewWidget::showTopic(const Topic& topic, int topicIndex) {
     textBrowser->setHtml(topic.htmlContent);
+    currentTopicIndex = topicIndex;
+    qDebug() << "Showing topic" << topicIndex << ":" << topic.title;
+}
+
+void TopicViewWidget::closeEvent(QCloseEvent* event) {
+    updateUserProgress();
+    QWidget::closeEvent(event);
+}
+
+void TopicViewWidget::onBackClicked() {
+    updateUserProgress();
+    emit backRequested();
+}
+
+void TopicViewWidget::updateUserProgress() {
+    if (currentTopicIndex < 0) {
+        return; // Нет активной темы
+    }
+    
+    // Получаем текущего пользователя из сессии
+    SessionManager& sessionManager = SessionManager::instance();
+    User currentUser = sessionManager.getCurrentUser();
+    
+    if (!currentUser.isValid()) {
+        qWarning() << "No valid user in session, cannot update progress";
+        return;
+    }
+    
+    // Обновляем прогресс пользователя
+    if (ProgressDao::updateProgress(currentUser.id, currentTopicIndex)) {
+        qDebug() << "Progress updated for user" << currentUser.id << "to topic" << currentTopicIndex;
+    } else {
+        qWarning() << "Failed to update progress for user" << currentUser.id;
+    }
 }

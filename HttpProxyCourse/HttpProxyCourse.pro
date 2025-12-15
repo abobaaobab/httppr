@@ -11,35 +11,41 @@ CONFIG += c++17
 SOURCES += \
     AdminWidget.cpp \
     AuthService.cpp \
+    CourseDataConverter.cpp \
     DatabaseConfig.cpp \
     DatabaseManager.cpp \
     Logger.cpp \
     LoginWidget.cpp \
-    Seeder.cpp \
+    ProgressDao.cpp \
     Serializer.cpp \
     SessionManager.cpp \
     StudentProfileWidget.cpp \
+    TestResultDao.cpp \
     TestWidget.cpp \
     TopicSelectionWidget.cpp \
     TopicViewWidget.cpp \
+    UserDao.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     AdminWidget.h \
     AuthService.h \
+    CourseDataConverter.h \
     DatabaseConfig.h \
     DatabaseManager.h \
     DomainTypes.h \
     Logger.h \
     LoginWidget.h \
-    Seeder.h \
+    ProgressDao.h \
     Serializer.h \
     SessionManager.h \
     StudentProfileWidget.h \
+    TestResultDao.h \
     TestWidget.h \
     TopicSelectionWidget.h \
     TopicViewWidget.h \
+    UserDao.h \
     mainwindow.h
 
 FORMS += \

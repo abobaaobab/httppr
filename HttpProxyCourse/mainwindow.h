@@ -83,6 +83,14 @@ private slots:
     void onAnswerSubmitted(int answerIndex);
 
     /**
+     * @brief Обработчик завершения теста.
+     * @param score Набранные баллы.
+     * @param maxScore Максимальные баллы.
+     * @param timeExpired true, если время истекло.
+     */
+    void onTestFinished(int score, int maxScore, bool timeExpired);
+
+    /**
      * @brief Показать диалог "О программе".
      */
     void showAboutDialog();
