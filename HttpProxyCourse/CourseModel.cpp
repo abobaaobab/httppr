@@ -78,6 +78,10 @@ QStringList CourseModel::getTopicTitles() const {
     return titles;
 }
 
+const QList<Topic>& CourseModel::getTopics() const {
+    return m_course.topics;
+}
+
 // ==================== TestResultsModel ====================
 
 TestResultsModel::TestResultsModel(QObject* parent) : QSqlQueryModel(parent) {
@@ -204,5 +208,3 @@ bool TestResultsFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& 
     // Проверяем, содержит ли ФИО искомую подстроку
     return fullName.contains(m_nameFilter, Qt::CaseInsensitive);
 }
-
-#include "CourseModel.moc"

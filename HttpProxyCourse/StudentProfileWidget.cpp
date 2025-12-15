@@ -55,6 +55,17 @@ void StudentProfileWidget::setCurrentUser(const User& user) {
     refreshData();
 }
 
+void StudentProfileWidget::setUser(const User& user) {
+    // Алиас для setCurrentUser для совместимости
+    setCurrentUser(user);
+}
+
+void StudentProfileWidget::setResultsModel(QAbstractItemModel* model) {
+    if (m_testHistoryTable) {
+        m_testHistoryTable->setModel(model);
+    }
+}
+
 void StudentProfileWidget::refreshData() {
     if (!m_currentUser.isValid()) {
         return;

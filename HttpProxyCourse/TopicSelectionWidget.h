@@ -28,6 +28,12 @@ public:
      */
     void setTopics(const QList<Topic>& topics);
 
+    /**
+     * @brief Устанавливает последнюю изученную тему.
+     * @param topicId Идентификатор последней изученной темы.
+     */
+    void setLastStudiedTopic(int topicId);
+
 signals:
     /**
      * @brief Сигнал выбора темы.

@@ -76,6 +76,12 @@ public:
      */
     QStringList getTopicTitles() const;
 
+    /**
+     * @brief Получить все темы курса.
+     * @return Список всех тем.
+     */
+    const QList<Topic>& getTopics() const;
+
 signals:
     /**
      * @brief Сигнал об изменении данных курса.

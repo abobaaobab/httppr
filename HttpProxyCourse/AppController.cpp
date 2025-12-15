@@ -6,6 +6,7 @@
 #include "AdminWidget.h"
 #include "StudentProfileWidget.h"
 #include "DatabaseManager.h"
+#include "ProgressDao.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QMessageBox>
@@ -75,7 +76,7 @@ void AppController::setupViews() {
     m_stackedWidget->addWidget(m_profileWidget);
     
     // Настройка виджета выбора тем
-    m_topicWidget->setTopics(m_courseModel->getTopicTitles());
+    m_topicWidget->setTopics(m_courseModel->getTopics());
 }
 
 void AppController::connectSignals() {
@@ -104,6 +105,8 @@ void AppController::connectSignals() {
             this, &AppController::handleStartTest);
     connect(m_topicViewWidget, &TopicViewWidget::backRequested,
             this, [this]() { switchToView(m_topicWidget); });
+    connect(m_topicViewWidget, &TopicViewWidget::progressUpdateRequested,
+            this, &AppController::handleProgressUpdate);
     
     // Подключение сигналов виджета тестирования
     connect(m_testWidget, &TestWidget::answerSubmitted,
@@ -166,7 +169,7 @@ void AppController::handleTopicSelected(int topicIndex) {
     }
     
     m_currentTopicIndex = topicIndex;
-    m_topicViewWidget->setTopic(*topic);
+    m_topicViewWidget->showTopic(*topic, topicIndex);
     switchToView(m_topicViewWidget);
     
     // Сохраняем прогресс студента
@@ -221,6 +224,8 @@ void AppController::handleShowProfile() {
         emit errorOccurred("Не удалось загрузить результаты тестов");
     }
 }
+
+
 
 void AppController::handleAdminBack() {
     switchToView(m_topicWidget);
@@ -359,5 +364,3 @@ int AppController::loadStudentProgress(int userId) {
     
     return -1; // Прогресс не найден
 }
-
-#include "AppController.moc"

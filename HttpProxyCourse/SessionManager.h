@@ -51,6 +51,11 @@ public:
     bool hasUser() const;
 
     /**
+     * @brief Очищает текущую сессию пользователя.
+     */
+    void clearSession();
+
+    /**
      * @brief Загружает курс из файла.
      * @param filePath Путь к файлу с данными курса.
      */

@@ -40,6 +40,12 @@ signals:
      */
     void backRequested();
 
+    /**
+     * @brief Сигнал запроса обновления прогресса пользователя.
+     * @param topicIndex Индекс изученной темы.
+     */
+    void progressUpdateRequested(int topicIndex);
+
 protected:
     /**
      * @brief Обработчик события закрытия виджета.
