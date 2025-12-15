@@ -23,7 +23,7 @@ AuthService::AuthResult AuthService::login(const QString& login, const QString& 
 
     // Подготовка запроса для поиска пользователя
     QSqlQuery query(dbManager.database());
-    query.prepare("SELECT id, login, pass_hash, full_name, role FROM users WHERE login = ?");
+    query.prepare("SELECT id, login, password_hash, full_name, role FROM users WHERE login = ?");
     query.addBindValue(login.trimmed());
 
     if (!query.exec()) {
@@ -39,7 +39,7 @@ AuthService::AuthResult AuthService::login(const QString& login, const QString& 
     // Получение данных пользователя
     int userId = query.value("id").toInt();
     QString storedLogin = query.value("login").toString();
-    QString storedHash = query.value("pass_hash").toString();
+    QString storedHash = query.value("password_hash").toString();
     QString fullName = query.value("full_name").toString();
     QString role = query.value("role").toString();
 
@@ -103,7 +103,7 @@ AuthService::RegisterResult AuthService::registerUser(const QString& login, cons
     QString passwordHash = calculateSha256(password);
     
     QSqlQuery insertQuery(dbManager.database());
-    insertQuery.prepare("INSERT INTO users (login, pass_hash, full_name, role) VALUES (?, ?, ?, ?)");
+    insertQuery.prepare("INSERT INTO users (login, password_hash, full_name, role) VALUES (?, ?, ?, ?)");
     insertQuery.addBindValue(login.trimmed());
     insertQuery.addBindValue(passwordHash);
     insertQuery.addBindValue(fullName.trimmed());

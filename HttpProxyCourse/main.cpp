@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "Seeder.h"
+#include "Serializer.h"
 #include "DatabaseManager.h"
 #include "Logger.h"
 #include <QApplication>
@@ -16,12 +16,11 @@ int main(int argc, char *argv[])
     
     // Проверяем наличие файла данных курса и создаем его при необходимости
     const QString courseDataFile = "course.dat";
-    const QString sourceJsonFile = "source.json";
     
     if (!QFile::exists(courseDataFile)) {
-        qDebug() << "Course data file not found. Generating from" << sourceJsonFile;
+        qDebug() << "Course data file not found. Generating binary course data...";
         try {
-            Seeder::generate(sourceJsonFile, courseDataFile);
+            Serializer::generateCourseData(courseDataFile);
             qDebug() << "Course data file created successfully!";
         } catch (const std::exception& e) {
             qCritical() << "Failed to generate course data:" << e.what();

@@ -81,14 +81,14 @@ QSqlDatabase& DatabaseManager::database() {
 bool DatabaseManager::createTables() {
     QSqlQuery query(m_database);
 
-    // Создание таблицы users
+    // Создание таблицы users согласно ТЗ
     QString createUsersTable = R"(
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             login VARCHAR(255) UNIQUE NOT NULL,
-            pass_hash VARCHAR(255) NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
             full_name VARCHAR(255),
-            role VARCHAR(50) NOT NULL
+            role VARCHAR(50) NOT NULL CHECK (role IN ('student', 'admin'))
         )
     )";
 
@@ -150,7 +150,7 @@ bool DatabaseManager::seedData() {
     QString adminPasswordHash = calculateSha256("admin");
     
     query.prepare(R"(
-        INSERT INTO users (login, pass_hash, full_name, role) 
+        INSERT INTO users (login, password_hash, full_name, role) 
         VALUES (?, ?, ?, ?)
     )");
     

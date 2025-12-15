@@ -10,12 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     AdminWidget.cpp \
+    AppController.cpp \
     AuthService.cpp \
+    CourseModel.cpp \
     DatabaseConfig.cpp \
     DatabaseManager.cpp \
     Logger.cpp \
     LoginWidget.cpp \
-    Seeder.cpp \
     Serializer.cpp \
     SessionManager.cpp \
     StudentProfileWidget.cpp \
@@ -27,13 +28,14 @@ SOURCES += \
 
 HEADERS += \
     AdminWidget.h \
+    AppController.h \
     AuthService.h \
+    CourseModel.h \
     DatabaseConfig.h \
     DatabaseManager.h \
     DomainTypes.h \
     Logger.h \
     LoginWidget.h \
-    Seeder.h \
     Serializer.h \
     SessionManager.h \
     StudentProfileWidget.h \
@@ -50,8 +52,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    source.json
+
 
 RESOURCES += \
     resources.qrc
